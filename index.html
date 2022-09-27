@@ -10,6 +10,7 @@
       body { 
         margin: 0; 
         padding: 0; 
+        font-family: sans-serif;
       }
       #map { 
         position: absolute; 
@@ -17,13 +18,70 @@
         bottom: 0; 
         width: 100%; 
       }
+
+      #map-ui {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 100;
+    }
+
+    #map-ui ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    #map-ui a {
+        font-size: 13px;
+        background: #FFF;
+        color: #3C4E5A;
+        display: block;
+        margin: 0;
+        padding: 0;
+        border: 1px solid #BBB;
+        border-bottom-width: 0;
+        min-width: 138px;
+        padding: 10px;
+        text-decoration: none;
+    }
+
+    #map-ui a:hover {
+        background: #ECF5FA;
+    }
+
+    #map-ui li:last-child a {
+        border-bottom-width: 1px;
+        -webkit-border-radius: 0 0 3px 3px;
+        border-radius: 0 0 3px 3px;
+    }
+
+    #map-ui li:first-child a {
+        -webkit-border-radius: 3px 3px 0 0;
+        border-radius: 3px 3px 0 0;
+    }
+
+    #map-ui a.active {
+        background: #3887BE;
+        border-color: #3887BE;
+        color: #FFF;
+    }
     </style>
   </head>
   <body>
+    <div id='map-ui'>
+        <ul>
+            <li><a href='#' id='filter-ref'>Show only papers with +50 ref</a></li>
+            <li><a href='#' class='active' id='filter-all'>Show all papers</a></li>
+        </ul>
+    </div>
     <div id='map'></div>
     <script>
+        const layerName = 'data-driven-circles';
+
     // The value for 'accessToken' begins with 'pk...'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGFqbGV2IiwiYSI6ImNqeHp0dzc5YzAzbngzYnQ2NnhxM3RqNmkifQ.gZOLWcvwpp1uVBx447fhtw'; 
+    
     const map = new mapboxgl.Map({
       container: 'map',
       // Replace YOUR_STYLE_URL with your style URL.
@@ -32,6 +90,28 @@
       zoom: 4
     });
 
+    window.map = map;
+
+
+    var filterRef = document.getElementById('filter-ref');
+    var filterAll = document.getElementById('filter-all');
+
+    filterRef.onclick = function(e) {
+        // map.setFilter(layerName, ['==', 'SDG', 'Good Health and Well being']);
+        map.setFilter(layerName, ['>', 'ref count', 50]);
+
+        filterAll.className = '';
+        this.className = 'active';
+        
+    };
+
+    filterAll.onclick = function() {
+        filterRef.className = '';
+        this.className = 'active';
+        map.setFilter(layerName, null);
+        return false;
+    };
+
     /* 
     Add an event listener that runs
     when a user clicks on the map element.
@@ -39,14 +119,14 @@
     map.on('click', (event) => {
     // If the user clicked on one of your markers, get its information.
     const features = map.queryRenderedFeatures(event.point, {
-        layers: ['data-driven-circles'] // replace with your layer name
+        layers: [layerName] // replace with your layer name
     });
     if (!features.length) {
         return;
     }
     const feature = features[0];
 
-    //console.log(feature);
+    console.log(feature)
 
     /* 
         Create a popup, specify its options 
@@ -55,7 +135,7 @@
     const popup = new mapboxgl.Popup({ offset: [0, -15] })
     .setLngLat(feature.geometry.coordinates)
     .setHTML(
-        `<h3>${feature.properties.Title}</h3><p>✏️ ${feature.properties.Author}<br>🎯 ${feature.properties.SDG}</p>`
+        `<h3>${feature.properties.Title}</h3><p>✏️ ${feature.properties.Author}<br>🎯 ${feature.properties.SDG} <br>📊 ${feature.properties["ref count"]}</p>`
     )
     .addTo(map);
 
