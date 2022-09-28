@@ -71,7 +71,7 @@
   <body>
     <div id='map-ui'>
         <ul>
-            <li><a href='#' id='filter-ref'>Show only papers with +50 ref</a></li>
+            <li><a href='#' id='filter-life-on-land'>Show only papers with Life on Land</a></li>
             <li><a href='#' class='active' id='filter-all'>Show all papers</a></li>
         </ul>
     </div>
@@ -93,12 +93,12 @@
     window.map = map;
 
 
-    var filterRef = document.getElementById('filter-ref');
+    var filterLifeOnLand = document.getElementById('filter-life-on-land');
     var filterAll = document.getElementById('filter-all');
 
-    filterRef.onclick = function(e) {
-        // map.setFilter(layerName, ['==', 'SDG', 'Good Health and Well being']);
-        map.setFilter(layerName, ['>', 'ref count', 50]);
+    filterLifeOnLand.onclick = function(e) {
+        map.setFilter(layerName, ['==', ['get', 'SDG'], 'Life on Land']);
+        //map.setFilter(layerName, ['>', 'ref count', 50]);
 
         filterAll.className = '';
         this.className = 'active';
@@ -106,7 +106,7 @@
     };
 
     filterAll.onclick = function() {
-        filterRef.className = '';
+        filterLifeOnLand.className = '';
         this.className = 'active';
         map.setFilter(layerName, null);
         return false;
